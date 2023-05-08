@@ -1,11 +1,11 @@
 mod neuron;
 
-pub struct Network {
+pub struct NeuralNetwork {
     layers: Vec<Vec<neuron::Neuron>>,
     n_inputs: usize,
 }
 
-impl Network {
+impl NeuralNetwork {
     pub fn new(n_inputs: usize) -> Self {
         Self {
             layers: Vec::new(),
@@ -19,7 +19,7 @@ impl Network {
             _ => self.layers[self.layers.len() - 1].len(),
         };
         self.layers
-            .push(vec![neuron::Neuron::new(n_inputs, 1.0, func); n]);
+            .push(vec![neuron::Neuron::new(n_inputs, 0.0, func); n]);
         self
     }
 
@@ -39,6 +39,7 @@ impl Network {
     }
 }
 
+#[derive(Debug)]
 pub enum NNError {
     IncorectInputLength,
 }
@@ -48,3 +49,16 @@ pub enum ActivationFunction {
     ReLU,
     Linear,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn minimal_test() {
+        // 
+        let net = NeuralNetwork::new(1).add_layer(10, ActivationFunction::ReLU).add_layer(5, ActivationFunction::Linear);
+        assert_eq!(net.run(&vec![1.0]).unwrap(), vec![10.0; 10])
+    }
+}
+

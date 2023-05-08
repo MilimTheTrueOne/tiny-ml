@@ -16,6 +16,14 @@ impl Neuron {
         }
     }
 
+    pub fn set_weights(&mut self, weights: Vec<f32>) {
+        self.weights = weights
+    }
+
+    pub fn set_bais(&mut self, bias: f32) {
+        self.bias = bias
+    }
+
     pub fn compute(&self, x: &Vec<f32>) -> f32 {
         let res: f32 = x.iter().zip(&self.weights).map(|(a, b)| a * b).sum::<f32>() + self.bias;
         match self.activiation {

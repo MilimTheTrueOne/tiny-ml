@@ -1,15 +1,17 @@
 use crate::networks::NeuralNetwork;
 
 pub struct BasicTrainer {
-    training_data: Option<DataSet>,
+    training_data: DataSet,
 }
 
 impl BasicTrainer {
+    pub fn new(data: DataSet) -> Self {
+        Self {
+            training_data: data,
+        }
+    }
     pub fn train(&self, net: &mut NeuralNetwork, iterations: usize) {
-        let training_data = match &self.training_data {
-            None => panic!("cannot train wihout training data!"),
-            Some(data) => data,
-        };
+        let training_data = &self.training_data;
 
         for _ in 0..=iterations {
             let pre_dist = compute_distance(net, training_data);
@@ -44,11 +46,10 @@ fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
                         result[0]
                     }
                 }
-                Expectation::Value { expected } => {
-                    expected.iter().zip(result).fold(0.0, |dist, x| {
-                        dist + (x.0 - x.1).abs()
-                    })
-                }
+                Expectation::Value { expected } => expected
+                    .iter()
+                    .zip(result)
+                    .fold(0.0, |dist, x| dist + (x.0 - x.1).abs()),
             }
         })
 }

@@ -18,12 +18,16 @@ impl Neuron {
         }
     }
 
-    pub fn random(n_inputs: usize , func: ActivationFunction) -> Self {
+    pub fn random(n_inputs: usize, func: ActivationFunction) -> Self {
         let mut weights = vec![];
         for _ in 0..n_inputs {
             weights.push(random())
         }
-        Self { weights, bias: random(),  activiation: func }
+        Self {
+            weights,
+            bias: random(),
+            activiation: func,
+        }
     }
 
     pub fn set_weights(&mut self, weights: Vec<f32>) {

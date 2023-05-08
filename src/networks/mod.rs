@@ -27,8 +27,7 @@ impl NeuralNetwork {
 
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
-        self.layers
-            .push(vec![Neuron::new(n_inputs, 0.0, func); n]);
+        self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
         self
     }
 
@@ -43,17 +42,17 @@ impl NeuralNetwork {
 
     pub fn random_edit(&mut self) {
         let mut rng = rand::thread_rng();
-        let layer = rng.gen_range(0..self.layers.len() - 1); 
+        let layer = rng.gen_range(0..self.layers.len());
         let row = rng.gen_range(0..self.layers[layer].len());
         let change: f32 = rng.gen::<f32>() / 10.0;
-        
+
         let neuron = &mut self.layers[layer][row];
         self.last_edit = Some(Edit {
             old: neuron.clone(),
             layer,
             row,
         });
-        
+
         if rng.gen_bool(0.95) {
             let index = rng.gen_range(0..neuron.get_weights_len());
             neuron.change_weight(index, change);
@@ -61,13 +60,13 @@ impl NeuralNetwork {
             neuron.change_bias(change);
         }
     }
-    
+
     pub fn reverse_edit(&mut self) {
         match &self.last_edit {
             Some(edit) => {
                 self.layers[edit.layer][edit.row] = edit.old.clone();
-            } ,
-            None => {},
+            }
+            None => {}
         }
     }
 

@@ -1,14 +1,7 @@
 mod networks;
+mod training;
 
 pub mod prelude {
     pub use super::networks::*;
-}
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2, 2)
-    }
+    pub use super::training::*;
 }

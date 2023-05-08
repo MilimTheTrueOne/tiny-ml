@@ -1,8 +1,19 @@
+use rand::Rng;
+
+use self::neuron::Neuron;
+
 mod neuron;
 
 pub struct NeuralNetwork {
     layers: Vec<Vec<neuron::Neuron>>,
     n_inputs: usize,
+    last_edit: Option<Edit>,
+}
+
+struct Edit {
+    old: Neuron,
+    layer: usize,
+    row: usize,
 }
 
 impl NeuralNetwork {
@@ -10,19 +21,62 @@ impl NeuralNetwork {
         Self {
             layers: Vec::new(),
             n_inputs,
+            last_edit: None,
         }
     }
 
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
-        let n_inputs = match self.layers.len() {
-            0 => self.n_inputs,
-            _ => self.layers[self.layers.len() - 1].len(),
-        };
+        let n_inputs = self.get_layer_inputs();
         self.layers
-            .push(vec![neuron::Neuron::new(n_inputs, 0.0, func); n]);
+            .push(vec![Neuron::new(n_inputs, 0.0, func); n]);
         self
     }
 
+    pub fn random_layer(mut self, n: usize, func: ActivationFunction) -> Self {
+        let mut layer: Vec<Neuron> = vec![];
+        for _ in 0..n {
+            layer.push(Neuron::random(self.get_layer_inputs(), func))
+        }
+        self.layers.push(layer);
+        self
+    }
+
+    pub fn random_edit(&mut self) {
+        let mut rng = rand::thread_rng();
+        let layer = rng.gen_range(0..self.layers.len() - 1); 
+        let row = rng.gen_range(0..self.layers[layer].len());
+        let change: f32 = rng.gen::<f32>() / 10.0;
+        
+        let neuron = &mut self.layers[layer][row];
+        self.last_edit = Some(Edit {
+            old: neuron.clone(),
+            layer,
+            row,
+        });
+        
+        if rng.gen_bool(0.95) {
+            let index = rng.gen_range(0..neuron.get_weights_len());
+            neuron.change_weight(index, change);
+        } else {
+            neuron.change_bias(change);
+        }
+    }
+    
+    pub fn reverse_edit(&mut self) {
+        match &self.last_edit {
+            Some(edit) => {
+                self.layers[edit.layer][edit.row] = edit.old.clone();
+            } ,
+            None => {},
+        }
+    }
+
+    fn get_layer_inputs(&self) -> usize {
+        match self.layers.len() {
+            0 => self.n_inputs,
+            _ => self.layers[self.layers.len() - 1].len(),
+        }
+    }
     pub fn with_weights(mut self, weights: Vec<Vec<f32>>) -> Self {
         match self.layers.last_mut() {
             None => panic!("tried to add weights before layers!"),
@@ -40,7 +94,7 @@ impl NeuralNetwork {
             Some(layer) => layer
                 .iter_mut()
                 .zip(baises)
-                .for_each(|(neuron, bais)| neuron.set_bais(bais)),
+                .for_each(|(neuron, bais)| neuron.set_bias(bais)),
         }
         self
     }
@@ -102,6 +156,5 @@ mod test {
         assert_eq!(net.run(&vec![-3.0, -3.0]).unwrap()[0] > 0.0, true);
         assert_eq!(net.run(&vec![3.0, -3.0]).unwrap()[0] < 0.0, true);
         assert_eq!(net.run(&vec![-3.0, 3.0]).unwrap()[0] < 0.0, true);
-
     }
 }

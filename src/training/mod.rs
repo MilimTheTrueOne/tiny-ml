@@ -22,6 +22,10 @@ impl BasicTrainer {
             }
         }
     }
+
+    pub fn get_distance(&self, net: &NeuralNetwork) -> f32 {
+        compute_distance(net, &self.training_data)
+    }
 }
 
 fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {

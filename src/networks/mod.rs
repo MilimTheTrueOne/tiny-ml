@@ -44,7 +44,11 @@ impl NeuralNetwork {
         let mut rng = rand::thread_rng();
         let layer = rng.gen_range(0..self.layers.len());
         let row = rng.gen_range(0..self.layers[layer].len());
-        let change: f32 = rng.gen::<f32>() / 10.0;
+        let mut change: f32 = rng.gen::<f32>() / 10.0;
+
+        if rng.gen_bool(0.5) {
+            change *= -1.0;
+        }
 
         let neuron = &mut self.layers[layer][row];
         self.last_edit = Some(Edit {

@@ -22,8 +22,26 @@ impl Network {
             .push(vec![neuron::Neuron::new(n_inputs, 1.0, func); n]);
         self
     }
+
+    pub fn run(&self, input: &Vec<f32>) -> Result<Vec<f32>, NNError> {
+        if input.len() != self.n_inputs {
+            return Err(NNError::IncorectInputLength);
+        }
+        let mut data = input.clone();
+        for layer in &self.layers {
+            data = layer
+                .iter()
+                .map(|neuron| neuron.compute(&data))
+                .collect::<Vec<f32>>();
+        }
+
+        Ok(data)
+    }
 }
 
+pub enum NNError {
+    IncorectInputLength,
+}
 #[derive(Debug, Default, Clone, Copy)]
 pub enum ActivationFunction {
     #[default]

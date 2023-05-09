@@ -1,6 +1,6 @@
 [package]
 name = "tiny-ml"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["milim <https://github.com/MilimTheTrueOne>"]
 description = "A very basic ml libary"

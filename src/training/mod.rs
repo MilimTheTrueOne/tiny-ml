@@ -1,3 +1,5 @@
+use rayon::prelude::{IntoParallelRefIterator, IndexedParallelIterator, ParallelIterator};
+
 use crate::networks::NeuralNetwork;
 
 pub struct BasicTrainer {
@@ -30,12 +32,12 @@ impl BasicTrainer {
 
 fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
     data.inputs
-        .iter()
+        .par_iter()
         .zip(&data.outputs)
-        .fold(0.0, |acc, (input, output)| {
+        .map(|(input, output)| {
             let result = net.run(input).unwrap();
 
-            acc + match output {
+            match output {
                 Expectation::GreaterZero => {
                     if result[0] > 0.0 {
                         0.0
@@ -55,7 +57,7 @@ fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
                     .zip(result)
                     .fold(0.0, |dist, x| dist + (x.0 - x.1).abs()),
             }
-        })
+        }).sum()
 }
 
 #[derive(Default)]

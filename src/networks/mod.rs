@@ -1,6 +1,6 @@
-use rand::Rng;
-
 use self::neuron::Neuron;
+use rand::Rng;
+use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 
 mod neuron;
 
@@ -115,6 +115,10 @@ impl NeuralNetwork {
         }
 
         Ok(data)
+    }
+
+    pub fn bulk_run(&self, inputs: &Vec<Vec<f32>>) -> Vec<Result<Vec<f32>, NNError>> {
+        inputs.par_iter().map(|input| self.run(input)).collect()
     }
 }
 

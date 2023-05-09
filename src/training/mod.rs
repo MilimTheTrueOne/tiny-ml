@@ -1,4 +1,4 @@
-use rayon::prelude::{IntoParallelRefIterator, IndexedParallelIterator, ParallelIterator};
+use rayon::prelude::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::networks::NeuralNetwork;
 
@@ -57,7 +57,8 @@ fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
                     .zip(result)
                     .fold(0.0, |dist, x| dist + (x.0 - x.1).abs()),
             }
-        }).sum()
+        })
+        .sum()
 }
 
 #[derive(Default)]

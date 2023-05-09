@@ -21,6 +21,6 @@ fn main() {
 
     println!("########");
     for i in -5..5 {
-       println!("{}", &net.run(&vec![i as f32 + 0.5]).unwrap()[0]);
+        println!("{}", &net.run(&vec![i as f32 + 0.5]).unwrap()[0]);
     }
 }

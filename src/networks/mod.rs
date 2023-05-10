@@ -9,6 +9,7 @@ pub struct NeuralNetwork {
     layers: Vec<Vec<Neuron>>,
     n_inputs: usize,
     last_edit: Option<Edit>,
+    longest_layer: usize,
 }
 
 struct Edit {
@@ -23,6 +24,7 @@ impl NeuralNetwork {
             layers: Vec::new(),
             n_inputs,
             last_edit: None,
+            longest_layer: 0,
         }
     }
 
@@ -30,6 +32,9 @@ impl NeuralNetwork {
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
         self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
+        if n > self.longest_layer {
+            self.longest_layer = n + 1;
+        }
         self
     }
 
@@ -40,6 +45,9 @@ impl NeuralNetwork {
             layer.push(Neuron::random(self.get_layer_inputs(), func))
         }
         self.layers.push(layer);
+        if n > self.longest_layer {
+            self.longest_layer = n + 1;
+        }
         self
     }
 
@@ -115,13 +123,24 @@ impl NeuralNetwork {
         if input.len() != self.n_inputs {
             return Err(NNError::IncorectInputLength);
         }
-        let mut data = input.clone();
-        for layer in &self.layers {
-            data = layer
-                .iter()
-                .map(|neuron| neuron.compute(&data))
-                .collect::<Vec<f32>>();
+
+        let mut data = Vec::with_capacity(self.longest_layer);
+
+        for x in input {
+            data.push(*x);
         }
+
+        let mut temp = Vec::with_capacity(self.longest_layer);
+        for layer in &self.layers{
+            unsafe { temp.set_len(layer.len()+1)}
+            
+            for (i, neuron) in layer.iter().enumerate() {
+                temp[i] = neuron.compute(&data);
+            }
+
+            (data, temp) = (temp, data);
+        }
+
 
         Ok(data)
     }

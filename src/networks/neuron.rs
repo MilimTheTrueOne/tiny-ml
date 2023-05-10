@@ -50,6 +50,7 @@ impl Neuron {
         self.bias += change;
     }
 
+    #[inline]
     pub fn compute(&self, x: &[f32]) -> f32 {
         let res: f32 = x.iter().zip(&self.weights).map(|(a, b)| a * b).sum::<f32>() + self.bias;
         match self.activiation {

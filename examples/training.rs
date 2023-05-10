@@ -3,7 +3,7 @@ use tiny_ml::prelude::*;
 fn main() {
     // crease a neural network
     let mut net = NeuralNetwork::new(1).add_layer(1, ActivationFunction::Linear);
-    
+
     // create training data
     let mut inputs = vec![];
     let mut output = vec![];

@@ -30,7 +30,7 @@ fn main() {
         inputs: inputs,
         outputs: output,
     };
-    
+
     let trainer = BasicTrainer::new(data);
     for _ in 0..5 {
         trainer.train(&mut net, 500);

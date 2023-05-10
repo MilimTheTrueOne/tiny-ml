@@ -77,7 +77,7 @@ impl NeuralNetwork {
         }
     }
 
-    /// Reverses the last random edit 
+    /// Reverses the last random edit
     pub fn reverse_edit(&mut self) {
         match &self.last_edit {
             Some(edit) => {
@@ -131,16 +131,15 @@ impl NeuralNetwork {
         }
 
         let mut temp = Vec::with_capacity(self.longest_layer);
-        for layer in &self.layers{
-            unsafe { temp.set_len(layer.len()+1)}
-            
+        for layer in &self.layers {
+            unsafe { temp.set_len(layer.len()) }
+
             for (i, neuron) in layer.iter().enumerate() {
                 temp[i] = neuron.compute(&data);
             }
 
             (data, temp) = (temp, data);
         }
-
 
         Ok(data)
     }

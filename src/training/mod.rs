@@ -14,13 +14,14 @@ impl BasicTrainer {
     }
     pub fn train(&self, net: &mut NeuralNetwork, iterations: usize) {
         let training_data = &self.training_data;
-
+        let mut pre_dist = compute_distance(net, training_data);
         for _ in 0..=iterations {
-            let pre_dist = compute_distance(net, training_data);
             net.random_edit();
             let after_dist = compute_distance(net, training_data);
             if pre_dist < after_dist {
                 net.reverse_edit();
+            } else {
+                pre_dist = after_dist;
             }
         }
     }

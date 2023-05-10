@@ -22,7 +22,7 @@ fn main() {
             })
         }
     }
-    
+
     let data = DataSet {
         inputs: inputs,
         outputs: output,

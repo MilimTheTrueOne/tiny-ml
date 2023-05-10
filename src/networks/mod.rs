@@ -5,7 +5,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 mod neuron;
 
 pub struct NeuralNetwork {
-    layers: Vec<Vec<neuron::Neuron>>,
+    layers: Vec<Vec<Neuron>>,
     n_inputs: usize,
     last_edit: Option<Edit>,
 }

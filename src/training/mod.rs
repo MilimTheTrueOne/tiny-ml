@@ -2,6 +2,7 @@ use rayon::prelude::{IndexedParallelIterator, IntoParallelRefIterator, ParallelI
 
 use crate::networks::NeuralNetwork;
 
+/// A simple struct for Training Neural Networks
 pub struct BasicTrainer {
     training_data: DataSet,
 }
@@ -62,6 +63,7 @@ fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
         .sum()
 }
 
+/// A set of inputs and the expected Outputs
 #[derive(Default)]
 pub struct DataSet {
     pub inputs: Vec<Vec<f32>>,

@@ -4,6 +4,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 
 mod neuron;
 
+/// A simple Neural Network
 pub struct NeuralNetwork {
     layers: Vec<Vec<Neuron>>,
     n_inputs: usize,
@@ -25,12 +26,14 @@ impl NeuralNetwork {
         }
     }
 
+    /// adds a layer to the model
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
         self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
         self
     }
 
+    /// adds a randomized layer to the model
     pub fn random_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let mut layer: Vec<Neuron> = vec![];
         for _ in 0..n {
@@ -40,6 +43,7 @@ impl NeuralNetwork {
         self
     }
 
+    /// randomly edits some neuron
     pub fn random_edit(&mut self) {
         let mut rng = rand::thread_rng();
         let layer = rng.gen_range(0..self.layers.len());
@@ -65,6 +69,7 @@ impl NeuralNetwork {
         }
     }
 
+    /// Reverses the last random edit 
     pub fn reverse_edit(&mut self) {
         match &self.last_edit {
             Some(edit) => {
@@ -80,6 +85,8 @@ impl NeuralNetwork {
             _ => self.layers[self.layers.len() - 1].len(),
         }
     }
+
+    /// Adds custom weights to the last layer of the model
     pub fn with_weights(mut self, weights: Vec<Vec<f32>>) -> Self {
         match self.layers.last_mut() {
             None => panic!("tried to add weights before layers!"),
@@ -91,6 +98,7 @@ impl NeuralNetwork {
         self
     }
 
+    /// adds custom biases to the last layer of the model
     pub fn with_bias(mut self, baises: Vec<f32>) -> Self {
         match self.layers.last_mut() {
             None => panic!("tried to add biases before layers!"),
@@ -102,6 +110,7 @@ impl NeuralNetwork {
         self
     }
 
+    /// runs the model on the given input, fails if the input had incorrect size
     pub fn run(&self, input: &Vec<f32>) -> Result<Vec<f32>, NNError> {
         if input.len() != self.n_inputs {
             return Err(NNError::IncorectInputLength);
@@ -117,6 +126,7 @@ impl NeuralNetwork {
         Ok(data)
     }
 
+    /// runs the model on a large set of data. Uses rayon for faster computation
     pub fn bulk_run(&self, inputs: &Vec<Vec<f32>>) -> Vec<Result<Vec<f32>, NNError>> {
         inputs.par_iter().map(|input| self.run(input)).collect()
     }
@@ -126,6 +136,8 @@ impl NeuralNetwork {
 pub enum NNError {
     IncorectInputLength,
 }
+
+/// The activation function neurons are to use
 #[derive(Debug, Default, Clone, Copy)]
 pub enum ActivationFunction {
     #[default]

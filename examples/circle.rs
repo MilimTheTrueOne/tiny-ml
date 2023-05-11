@@ -9,7 +9,7 @@ fn main() {
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
-        // this layer makles sure we get one input
+        // this layer reduced everthing to one input!
         .add_layer(1, ActivationFunction::Linear);
 
     let mut inputs = vec![];

@@ -1,7 +1,7 @@
 use tiny_ml::prelude::*;
 
 fn main() {
-    // crease a neural network
+    // create a neural network
     let mut net = NeuralNetwork::new(1).add_layer(1, ActivationFunction::Linear);
 
     // create training data
@@ -27,6 +27,6 @@ fn main() {
     // show that this actually works!
     println!("########");
     for i in -5..5 {
-        println!("{}", &net.run(&vec![i as f32 + 0.5]).unwrap()[0]);
+        println!("{}", &net.run(&vec![i as f32 + 0.5])[0]);
     }
 }

@@ -37,7 +37,7 @@ fn compute_distance(net: &NeuralNetwork, data: &DataSet) -> f32 {
         .par_iter()
         .zip(&data.outputs)
         .map(|(input, output)| {
-            let result = net.run(input).unwrap();
+            let result = net.run(input);
 
             match output {
                 Expectation::GreaterZero => {

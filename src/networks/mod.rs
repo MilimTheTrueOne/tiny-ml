@@ -119,11 +119,7 @@ impl NeuralNetwork {
     }
 
     /// runs the model on the given input, fails if the input had incorrect size
-    pub fn run(&self, input: &Vec<f32>) -> Result<Vec<f32>, NNError> {
-        if input.len() != self.n_inputs {
-            return Err(NNError::IncorectInputLength);
-        }
-
+    pub fn run(&self, input: &Vec<f32>) -> Vec<f32>{
         let mut data = Vec::with_capacity(self.longest_layer);
 
         for x in input {
@@ -141,18 +137,13 @@ impl NeuralNetwork {
             (data, temp) = (temp, data);
         }
 
-        Ok(data)
+        data
     }
 
     /// runs the model on a large set of data. Uses rayon for faster computation
-    pub fn bulk_run(&self, inputs: &Vec<Vec<f32>>) -> Vec<Result<Vec<f32>, NNError>> {
+    pub fn par_run(&self, inputs: &Vec<Vec<f32>>) -> Vec<Vec<f32>> {
         inputs.par_iter().map(|input| self.run(input)).collect()
     }
-}
-
-#[derive(Debug)]
-pub enum NNError {
-    IncorectInputLength,
 }
 
 /// The activation function neurons are to use
@@ -172,7 +163,7 @@ mod test {
         let net = NeuralNetwork::new(1)
             .add_layer(10, ActivationFunction::ReLU)
             .add_layer(5, ActivationFunction::Linear);
-        assert_eq!(net.run(&vec![1.0]).unwrap(), vec![10.0; 5])
+        assert_eq!(net.run(&vec![1.0]), vec![10.0; 5])
     }
 
     #[test]
@@ -189,9 +180,9 @@ mod test {
             .add_layer(1, ActivationFunction::Linear)
             .with_weights(vec![vec![-1.4, 1.3, 1.4, -1.3]]);
 
-        assert_eq!(net.run(&vec![3.0, 3.0]).unwrap()[0] > 0.0, true);
-        assert_eq!(net.run(&vec![-3.0, -3.0]).unwrap()[0] > 0.0, true);
-        assert_eq!(net.run(&vec![3.0, -3.0]).unwrap()[0] < 0.0, true);
-        assert_eq!(net.run(&vec![-3.0, 3.0]).unwrap()[0] < 0.0, true);
+        assert_eq!(net.run(&vec![3.0, 3.0])[0] > 0.0, true);
+        assert_eq!(net.run(&vec![-3.0, -3.0])[0] > 0.0, true);
+        assert_eq!(net.run(&vec![3.0, -3.0])[0] < 0.0, true);
+        assert_eq!(net.run(&vec![-3.0, 3.0])[0] < 0.0, true);
     }
 }

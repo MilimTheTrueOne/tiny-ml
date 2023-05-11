@@ -121,9 +121,9 @@ impl NeuralNetwork {
     /// runs the model on the given input, fails if the input had incorrect size
     pub fn run(&self, input: &Vec<f32>) -> Vec<f32>{
         let mut data = Vec::with_capacity(self.longest_layer);
-
-        for x in input {
-            data.push(*x);
+        unsafe { data.set_len(input.len())}
+        for i in 0..input.len() {
+            data[i] = input[i];
         }
 
         let mut temp = Vec::with_capacity(self.longest_layer);

@@ -1,5 +1,7 @@
 use self::neuron::Neuron;
 use rand::Rng;
+
+#[cfg(feature = "parallization")]
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 
 mod neuron;
@@ -190,6 +192,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     }
 
     /// runs the model on a large set of data. Uses rayon for faster computation
+    #[cfg(feature = "parallization")]
     pub fn par_run(&self, inputs: &Vec<[f32; I]>) -> Vec<[f32; O]> {
         inputs.par_iter().map(|input| self.unbufferd_run(input)).collect()
     }

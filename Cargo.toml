@@ -8,10 +8,13 @@ license = "GPL-3.0-only"
 repository = "https://github.com/MilimTheTrueOne/tiny-ml"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = ["parallization"]
+parallization = ["rayon"]
 
 [dependencies]
+rayon = {version="1.7.0", optional=true}
 rand = "0.8.5"
-rayon = "1.7.0"
 
 [profile.dev]
 opt-level=3

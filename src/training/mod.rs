@@ -1,5 +1,6 @@
 use std::usize;
 
+#[cfg(feature = "parallization")]
 use rayon::prelude::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::networks::NeuralNetwork;
@@ -34,9 +35,13 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
     }
 
     fn cumpute_total_error(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
-        data.inputs
-            .par_iter()
-            .zip(&data.outputs)
+        #[cfg(feature = "parallization")]
+        let it = { data.inputs.par_iter() };
+
+        #[cfg(not(feature = "parallization"))]
+        let it = { data.inputs.iter() };
+
+        it.zip(&data.outputs)
             .map(|(input, output)| {
                 let result = net.unbufferd_run(input);
 

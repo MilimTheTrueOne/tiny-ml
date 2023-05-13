@@ -21,7 +21,7 @@ fn main() {
     for _ in 0..10 {
         trainer.train(&mut net, 10);
         // lower is better
-        println!("{}", trainer.get_distance(&net))
+        println!("{}", trainer.get_total_error(&net))
     }
 
     // show that this actually works!

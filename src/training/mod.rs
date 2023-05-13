@@ -17,10 +17,10 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
     }
     pub fn train(&self, net: &mut NeuralNetwork<N, O>, iterations: usize) {
         let training_data = &self.training_data;
-        let mut pre_dist = self.compute_distance(net, training_data);
+        let mut pre_dist = self.cumpute_total_error(net, training_data);
         for _ in 0..=iterations {
             net.random_edit();
-            let after_dist = self.compute_distance(net, training_data);
+            let after_dist = self.cumpute_total_error(net, training_data);
             if pre_dist < after_dist {
                 net.reverse_edit();
             } else {
@@ -29,11 +29,11 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
         }
     }
 
-    pub fn get_distance(&self, net: &NeuralNetwork<N, O>) -> f32 {
-        self.compute_distance(net, &self.training_data)
+    pub fn get_total_error(&self, net: &NeuralNetwork<N, O>) -> f32 {
+        self.cumpute_total_error(net, &self.training_data)
     }
 
-    fn compute_distance(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
+    fn cumpute_total_error(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
         data.inputs
             .par_iter()
             .zip(&data.outputs)

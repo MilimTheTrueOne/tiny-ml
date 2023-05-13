@@ -34,6 +34,6 @@ fn main() {
     let trainer = BasicTrainer::new(data);
     for _ in 0..5 {
         trainer.train(&mut net, 500);
-        println!("{}", trainer.get_distance(&net))
+        println!("{}", trainer.get_total_error(&net))
     }
 }

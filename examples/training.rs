@@ -6,14 +6,14 @@ fn main() {
 
     // create training data
     let mut inputs = vec![];
-    let mut output = vec![];
+    let mut outputs = vec![];
     for i in -50..50 {
         inputs.push([i as f32]);
-        output.push(Expectation::Value {
+        outputs.push(Expectation::Value {
             expected: [i as f32 * 3.0],
         });
     }
-    let data = DataSet::new().set_inputs(inputs).set_output(output);
+    let data = DataSet { inputs, outputs };
 
     let trainer = BasicTrainer::new(data);
 

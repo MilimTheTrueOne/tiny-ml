@@ -149,7 +149,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
             unsafe { temp.set_len(layer.len()) }
 
             for (i, neuron) in layer.iter().enumerate() {
-                temp[i] = neuron.compute(&data);
+                temp[i] = neuron.compute(data);
             }
 
             (data, temp) = (temp, data);

@@ -81,21 +81,3 @@ pub enum Expectation<const O: usize> {
     SmallerZero,
     Value { expected: [f32; O] },
 }
-impl<const N: usize, const O: usize> DataSet<N, O> {
-    pub fn new() -> Self {
-        Self {
-            inputs: vec![],
-            outputs: vec![],
-        }
-    }
-
-    pub fn set_inputs(mut self, inputs: Vec<[f32; N]>) -> Self {
-        self.inputs = inputs;
-        self
-    }
-
-    pub fn set_output(mut self, output: Vec<Expectation<O>>) -> Self {
-        self.outputs = output;
-        self
-    }
-}

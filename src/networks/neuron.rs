@@ -52,7 +52,12 @@ impl Neuron {
 
     #[inline]
     pub fn compute(&self, x: &[f32]) -> f32 {
-        let res: f32 = x.iter().zip(&self.weights).map(|(a, b)| a * b).sum::<f32>() + self.bias;
+        let mut res = self.bias;
+        let mut i = 0;
+        while i < self.weights.len() {
+            res += self.weights[i] * x[i];
+            i += 1;
+        }
         match self.activiation {
             ActivationFunction::Linear => res,
             ActivationFunction::ReLU => res.max(0.0),

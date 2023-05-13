@@ -38,7 +38,7 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
             .par_iter()
             .zip(&data.outputs)
             .map(|(input, output)| {
-                let result = net.run(input);
+                let result = net.unbufferd_run(input);
 
                 match output {
                     Expectation::GreaterZero => {

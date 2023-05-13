@@ -9,6 +9,7 @@ pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
     last_edit: Option<Edit>,
     longest_layer: usize,
+    buffers: (Vec<f32>, Vec<f32>)
 }
 
 struct Edit {
@@ -28,6 +29,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
             layers: Vec::new(),
             last_edit: None,
             longest_layer: 0,
+            buffers: (vec![], vec![])
         }
     }
 
@@ -35,10 +37,15 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
         self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
-        if n > self.longest_layer {
-            self.longest_layer = n + 1;
-        }
+        Self::check_max_layer(&mut self, n);
         self
+    }
+
+    fn check_max_layer(&mut self, n: usize) {
+        if n > self.longest_layer {
+            self.longest_layer = n;
+            self.buffers = (Vec::with_capacity(n), Vec::with_capacity(n))
+        }
     }
 
     /// adds a randomized layer to the model
@@ -48,9 +55,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
             layer.push(Neuron::random(self.get_layer_inputs(), func))
         }
         self.layers.push(layer);
-        if n > self.longest_layer {
-            self.longest_layer = n + 1;
-        }
+        Self::check_max_layer(&mut self, n);
         self
     }
 
@@ -122,7 +127,42 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     }
 
     /// runs the model on the given input.
-    pub fn run(&self, input: &[f32; I]) -> [f32; O] {
+    #[inline]
+    pub fn run(&mut self, input: &[f32; I]) -> [f32; O] {
+        // data and temp vec
+        let mut data = &mut self.buffers.0;
+        let mut temp = &mut self.buffers.1;
+
+        // we only read values we initialise in this loop, so this is 100% safe
+        #[allow(clippy::uninit_vec)]
+        unsafe { data.set_len(input.len()) }
+
+        // put input data in temp vec
+        data[..input.len()].copy_from_slice(&input[..]);
+
+        for layer in &self.layers {
+
+            // we only read values we initialise in this loop, so this is 100% safe
+            #[allow(clippy::uninit_vec)]
+            unsafe { temp.set_len(layer.len()) }
+
+            for (i, neuron) in layer.iter().enumerate() {
+                temp[i] = neuron.compute(&data);
+            }
+
+            (data, temp) = (temp, data);
+        }
+
+        let mut out = [0.0; O];
+        out[..O].copy_from_slice(&data[..O]);
+        out
+    }
+
+    
+    /// runs the model on the given input. This does not buffer some things, and thus is slower
+    /// as ist does extra allocations work. 
+    #[inline]
+    pub fn unbufferd_run(&self, input: &[f32; I]) -> [f32; O] {
         let mut data = Vec::with_capacity(self.longest_layer);
 
         // we only read values we initialise in this loop, so this is 100% safe
@@ -151,7 +191,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
 
     /// runs the model on a large set of data. Uses rayon for faster computation
     pub fn par_run(&self, inputs: &Vec<[f32; I]>) -> Vec<[f32; O]> {
-        inputs.par_iter().map(|input| self.run(input)).collect()
+        inputs.par_iter().map(|input| self.unbufferd_run(input)).collect()
     }
 }
 
@@ -169,7 +209,7 @@ mod test {
 
     #[test]
     fn minimal_test() {
-        let net = NeuralNetwork::new()
+        let mut net = NeuralNetwork::new()
             .add_layer(10, ActivationFunction::ReLU)
             .add_layer(5, ActivationFunction::Linear);
         assert_eq!(net.run(&[1.0]), [10.0; 5])
@@ -177,7 +217,7 @@ mod test {
 
     #[test]
     fn better_test() {
-        let net: NeuralNetwork<2, 1> = NeuralNetwork::new()
+        let mut net: NeuralNetwork<2, 1> = NeuralNetwork::new()
             .add_layer(4, ActivationFunction::ReLU)
             .with_weights(vec![
                 vec![1.1, -0.93],

@@ -2,7 +2,7 @@ use tiny_ml::prelude::*;
 
 fn main() {
     // let's check how fast this thing gets
-    let net: NeuralNetwork<1, 1> = NeuralNetwork::new()
+    let mut net: NeuralNetwork<1, 1> = NeuralNetwork::new()
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)

@@ -15,9 +15,9 @@ fn main() {
             inputs.push([x as f32, y as f32]);
             // we want this to be a classifier, so we ask it for a result greater zero or smaller zero
             output.push(if (x as f32).abs() + (y as f32).abs() < 30.0 {
-                Expectation::SmallerZero
+                Expectation { expected: [1.0] }
             } else {
-                Expectation::GreaterZero
+                Expectation { expected: [-1.0] }
             })
         }
     }

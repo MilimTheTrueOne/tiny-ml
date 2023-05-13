@@ -17,7 +17,7 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
             training_data: data,
         }
     }
-    
+
     pub fn train(&self, net: &mut NeuralNetwork<N, O>, iterations: usize) {
         let training_data = &self.training_data;
         let mut pre_dist = self.compute_total_error(net, training_data);
@@ -46,27 +46,11 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
         it.zip(&data.outputs)
             .map(|(input, output)| {
                 let result = net.unbufferd_run(input);
-
-                match output {
-                    Expectation::GreaterZero => {
-                        if result[0] > 0.0 {
-                            0.0
-                        } else {
-                            result[0] * -1.0
-                        }
-                    }
-                    Expectation::SmallerZero => {
-                        if result[0] < 0.0 {
-                            0.0
-                        } else {
-                            result[0]
-                        }
-                    }
-                    Expectation::Value { expected } => expected
+                output.expected    
                         .iter()
                         .zip(result)
-                        .fold(0.0, |dist, x| dist + (x.0 - x.1).abs()),
-                }
+                        .fold(0.0, |dist, x| dist + (x.0 - x.1).abs())
+                
             })
             .sum()
     }
@@ -79,8 +63,6 @@ pub struct DataSet<const N: usize, const O: usize> {
     pub outputs: Vec<Expectation<O>>,
 }
 
-pub enum Expectation<const O: usize> {
-    GreaterZero,
-    SmallerZero,
-    Value { expected: [f32; O] },
+pub struct  Expectation<const O: usize> {
+    pub expected: [f32; O],
 }

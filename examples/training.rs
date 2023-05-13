@@ -9,7 +9,7 @@ fn main() {
     let mut outputs = vec![];
     for i in -50..50 {
         inputs.push([i as f32]);
-        outputs.push(Expectation::Value {
+        outputs.push(Expectation {
             expected: [i as f32 * 3.0],
         });
     }

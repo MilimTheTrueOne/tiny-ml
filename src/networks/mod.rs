@@ -43,7 +43,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
         self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
-        Self::check_max_layer(&mut self, n);
+        self.check_max_layer(n);
         self
     }
 

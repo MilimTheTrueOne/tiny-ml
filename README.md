@@ -29,7 +29,7 @@ fn main() {
     let mut net: NeuralNetwork<NET_INPUTS, NET_OUTPUTS> = NeuralNetwork::new()
         .add_layer(3, ActivationFunction::ReLU)
         .add_layer(3, ActivationFunction::ReLU)
-        .add_layer(1, ActivationFunction::Linear)
+        .add_layer(1, ActivationFunction::Linear);
     // this network has no weights yet but we can fix that by training it
     
     // for training we first need a  dataset
@@ -40,12 +40,13 @@ fn main() {
     for x in 0..100 {
         for y in 0..100 {
             inputs.push([x as f32, y as f32]);
-            // we want this to be a classifier, so we ask it for a result greater zero or smaller zero 
+            // we want this to be a classifier, so we will give -1 for in the circle 
+            // and +1 for in the circle 
             outputs.push(
                 if (x as f32).abs() + (y as f32).abs() < RADIUS{
-                    Expectation::SmallerZero
+                    Expectation { expected: [1.0]}
                 } else {
-                    Expectation::GreaterZero
+                    Expectation { expected: [-1.0]}
                 }
             )
         }

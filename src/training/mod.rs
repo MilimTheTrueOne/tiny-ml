@@ -7,6 +7,7 @@ use crate::networks::NeuralNetwork;
 
 /// A simple struct for Training Neural Networks
 pub struct BasicTrainer<const N: usize, const O: usize> {
+    /// the data the model is to be trained on
     training_data: DataSet<N, O>,
 }
 
@@ -69,6 +70,7 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
             .sum()
     }
 }
+
 /// A set of inputs and the expected Outputs
 #[derive(Default)]
 pub struct DataSet<const N: usize, const O: usize> {

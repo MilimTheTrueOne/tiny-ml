@@ -2,6 +2,7 @@ use rand::random;
 
 use super::*;
 
+/// Struct representing one Neuron
 #[derive(Default, Debug, Clone)]
 pub struct Neuron {
     weights: Vec<f32>,

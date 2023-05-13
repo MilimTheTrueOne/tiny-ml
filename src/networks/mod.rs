@@ -10,10 +10,13 @@ mod neuron;
 pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
     last_edit: Option<Edit>,
+    /// this exist for preallocation
     longest_layer: usize,
-    buffers: (Vec<f32>, Vec<f32>)
+    /// preallocated buffers
+    buffers: (Vec<f32>, Vec<f32>),
 }
 
+/// struct that represents the last edit done to the NN
 struct Edit {
     old: Neuron,
     layer: usize,
@@ -25,17 +28,18 @@ impl<const I: usize, const O: usize> Default for NeuralNetwork<I, O> {
         Self::new()
     }
 }
+
 impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     pub fn new() -> Self {
         Self {
             layers: Vec::new(),
             last_edit: None,
             longest_layer: 0,
-            buffers: (vec![], vec![])
+            buffers: (vec![], vec![]),
         }
     }
 
-    /// adds a layer to the model
+    /// adds a layer with `n` neurons and the specified activation function
     pub fn add_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let n_inputs = self.get_layer_inputs();
         self.layers.push(vec![Neuron::new(n_inputs, 0.0, func); n]);
@@ -43,6 +47,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         self
     }
 
+    /// checks whenever the newly added layer is longer then previus longest layer
     fn check_max_layer(&mut self, n: usize) {
         if n > self.longest_layer {
             self.longest_layer = n;
@@ -50,7 +55,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         }
     }
 
-    /// adds a randomized layer to the model
+    /// adds a layer with `n` neurons and randomized weights/bias to the model
     pub fn random_layer(mut self, n: usize, func: ActivationFunction) -> Self {
         let mut layer: Vec<Neuron> = vec![];
         for _ in 0..n {
@@ -97,6 +102,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         }
     }
 
+    /// get the inputs lenght of the last layer
     fn get_layer_inputs(&self) -> usize {
         if self.layers.is_empty() {
             return I;
@@ -137,16 +143,19 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
 
         // we only read values we initialise in this loop, so this is 100% safe
         #[allow(clippy::uninit_vec)]
-        unsafe { data.set_len(input.len()) }
+        unsafe {
+            data.set_len(input.len())
+        }
 
         // put input data in temp vec
         data[..input.len()].copy_from_slice(&input[..]);
 
         for layer in &self.layers {
-
             // we only read values we initialise in this loop, so this is 100% safe
             #[allow(clippy::uninit_vec)]
-            unsafe { temp.set_len(layer.len()) }
+            unsafe {
+                temp.set_len(layer.len())
+            }
 
             for (i, neuron) in layer.iter().enumerate() {
                 temp[i] = neuron.compute(data);
@@ -160,16 +169,17 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         out
     }
 
-    
     /// runs the model on the given input. This does not buffer some things, and thus is slower
-    /// as ist does extra allocations work. 
+    /// as ist does extra allocations work.
     #[inline]
     pub fn unbufferd_run(&self, input: &[f32; I]) -> [f32; O] {
         let mut data = Vec::with_capacity(self.longest_layer);
 
         // we only read values we initialise in this loop, so this is 100% safe
         #[allow(clippy::uninit_vec)]
-        unsafe { data.set_len(input.len()) }
+        unsafe {
+            data.set_len(input.len())
+        }
 
         data[..input.len()].copy_from_slice(&input[..]);
 
@@ -177,7 +187,9 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         for layer in &self.layers {
             // we only read values we initialise in this loop, so this is 100% safe
             #[allow(clippy::uninit_vec)]
-            unsafe { temp.set_len(layer.len()) }
+            unsafe {
+                temp.set_len(layer.len())
+            }
 
             for (i, neuron) in layer.iter().enumerate() {
                 temp[i] = neuron.compute(&data);
@@ -194,7 +206,10 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     /// runs the model on a large set of data. Uses rayon for faster computation
     #[cfg(feature = "parallization")]
     pub fn par_run(&self, inputs: &Vec<[f32; I]>) -> Vec<[f32; O]> {
-        inputs.par_iter().map(|input| self.unbufferd_run(input)).collect()
+        inputs
+            .par_iter()
+            .map(|input| self.unbufferd_run(input))
+            .collect()
     }
 }
 

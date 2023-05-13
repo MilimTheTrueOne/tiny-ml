@@ -1,14 +1,89 @@
-# Tiny ml
 
-Basic neural networks for rust!
+# tiny ml
 
-## What is this for?
-It is meant for small machine learning applications, such as evolution simulators. It can technically be used for other things, but is not intended to be used that way.
-## Things to know:
-- This is _very_ early in development, everything is subject to change.
-- Use --release or opt-level=3 or this will be very slow.
-- The traininf algorithm currently is very simple and naive, and probably will take imense amounts of time on more compley datasets.
-## Speed
-Using the NeuralNetwork::par_run function, on a network with 301 neurons, 1 input, 1 output the crate can handle some ~800000 runs / second.
-For smaller models speed is signicicantly better. (31 neurons, 1 input, 1 output, ~8000000 runs / second)     
-Considering this crate is called tiny ml, i would say that is quite fast. However i will continue to improve the performance as time goes on.
+A simple, fast rust crate for simple basic neural networks. 
+
+### What is this for?
+- Learning about ML 
+- Evolution simulations
+- Whaterver else you want to use this for
+
+#### what is this **not**?
+- A large scale ML libary like Tensorflolw or PyTorch. This is simple and basic, or just 'tiny'.
+
+## How to use this?
+As an example, here is how to make a model that can tell if a point is in a circle or not!
+```rust
+use tiny_ml::prelude:.*;
+
+// how many input datapoints the model has
+const NET_INPUTS: usize = 2;
+// how many datampoints the model outputs
+const NET_OUTPUTS: usize = 1;
+// radius of the circle
+const RADIUS: f32 = 30.0;
+
+
+fn main() {
+    // create a network   
+    let mut net: NeuralNetwork<NET_INPUTS, NET_OUTPUTS> = NeuralNetwork::new()
+        .add_layer(3, ActivationFunction::ReLU)
+        .add_layer(3, ActivationFunction::ReLU)
+        .add_layer(1, ActivationFunction::Linear)
+    // this network has no weights yet but we can fix that by training it
+    
+    // for training we first need a  dataset
+    let mut inputs = vec![];
+    let mut outputs = vec![];
+
+    // well just generate some samples
+    for x in 0..100 {
+        for y in 0..100 {
+            inputs.push([x as f32, y as f32]);
+            // we want this to be a classifier, so we ask it for a result greater zero or smaller zero 
+            outputs.push(
+                if (x as f32).abs() + (y as f32).abs() < RADIUS{
+                    Expectation::SmallerZero
+                } else {
+                    Expectation::GreaterZero
+                }
+            )
+        }
+    }
+
+
+    let data = DataSet {
+        inputs,
+        outputs,
+    };
+
+    // get ourselves a trainer
+    let trainer = BasicTrainer::new(data);
+    // let it train 10 times, 50 iterations each 
+    for _ in 0..10 {
+        trainer.train(&mut net, 50);
+        // print the total error, lower is better
+        println!("{}", trainer.get_total_error(&net))
+    }
+}
+```
+
+## Speed?
+Here some benchmarks on an AMD Ryzen 5 2600X (12) @ 3.6 GHz with the 'bench' example.
+Build with `--release`-flag enabled.
+Benchmark is 10 Million runs on this network, and then sum the results: 
+```rust
+    let mut net: NeuralNetwork<1, 1> = NeuralNetwork::new()
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(1, ActivationFunction::Linear);
+```
+| method | time     | Description                |
+| :-------- | :------- | :------------------------- |
+| `run` | 1.045s | Single threaded, but buffers some vecs |
+| `unbufferd_run` | 1.251s | Can be ran in multiple threads at the same time, however has to allocate more often |
+| `par_run` | 240ms | Takes a multiple inputs at once. Parallelizes computation with `rayon`, uses `unbufferd_run` under the hood |

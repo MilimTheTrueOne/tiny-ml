@@ -3,12 +3,8 @@ use tiny_ml::prelude::*;
 fn main() {
     // this network is completley overkill, but it does the job
     let mut net: NeuralNetwork<2, 1> = NeuralNetwork::new()
-        .add_layer(5, ActivationFunction::ReLU)
-        .add_layer(5, ActivationFunction::ReLU)
-        .add_layer(5, ActivationFunction::ReLU)
-        .add_layer(5, ActivationFunction::ReLU)
-        .add_layer(5, ActivationFunction::ReLU)
-        .add_layer(5, ActivationFunction::ReLU)
+        .add_layer(3, ActivationFunction::ReLU)
+        .add_layer(3, ActivationFunction::ReLU)
         // this layer reduced everthing to one input!
         .add_layer(1, ActivationFunction::Linear);
 
@@ -32,8 +28,8 @@ fn main() {
     };
 
     let trainer = BasicTrainer::new(data);
-    for _ in 0..5 {
-        trainer.train(&mut net, 500);
+    for _ in 0..50 {
+        trainer.train(&mut net, 10);
         println!("{}", trainer.get_total_error(&net))
     }
 }

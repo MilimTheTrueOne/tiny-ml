@@ -9,12 +9,12 @@ A simple, fast rust crate for simple basic neural networks.
 - Whaterver else you want to use this for
 
 #### what is this **not**?
-- A large scale ML libary like Tensorflolw or PyTorch. This is simple and basic, or just 'tiny'.
+- A large scale ML libary like Tensorflow or PyTorch. This is simple and basic, or just 'tiny'.
 
 ## How to use this?
 As an example, here is how to make a model that can tell if a point is in a circle or not!
 ```rust
-use tiny_ml::prelude:.*;
+use tiny_ml::prelude::*;
 
 // how many input datapoints the model has
 const NET_INPUTS: usize = 2;

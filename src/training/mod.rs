@@ -17,12 +17,13 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
             training_data: data,
         }
     }
+    
     pub fn train(&self, net: &mut NeuralNetwork<N, O>, iterations: usize) {
         let training_data = &self.training_data;
-        let mut pre_dist = self.cumpute_total_error(net, training_data);
+        let mut pre_dist = self.compute_total_error(net, training_data);
         for _ in 0..=iterations {
             net.random_edit();
-            let after_dist = self.cumpute_total_error(net, training_data);
+            let after_dist = self.compute_total_error(net, training_data);
             if pre_dist < after_dist {
                 net.reverse_edit();
             } else {
@@ -32,10 +33,10 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
     }
 
     pub fn get_total_error(&self, net: &NeuralNetwork<N, O>) -> f32 {
-        self.cumpute_total_error(net, &self.training_data)
+        self.compute_total_error(net, &self.training_data)
     }
 
-    fn cumpute_total_error(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
+    fn compute_total_error(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
         #[cfg(feature = "parallization")]
         let it = { data.inputs.par_iter() };
 

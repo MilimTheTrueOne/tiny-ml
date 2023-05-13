@@ -5,9 +5,8 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 mod neuron;
 
 /// A simple Neural Network
-pub struct NeuralNetwork {
+pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
-    n_inputs: usize,
     last_edit: Option<Edit>,
     longest_layer: usize,
 }
@@ -18,11 +17,15 @@ struct Edit {
     row: usize,
 }
 
-impl NeuralNetwork {
-    pub fn new(n_inputs: usize) -> Self {
+impl<const I: usize, const O: usize> Default for NeuralNetwork<I, O> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
+    pub fn new() -> Self {
         Self {
             layers: Vec::new(),
-            n_inputs,
             last_edit: None,
             longest_layer: 0,
         }
@@ -88,10 +91,10 @@ impl NeuralNetwork {
     }
 
     fn get_layer_inputs(&self) -> usize {
-        match self.layers.len() {
-            0 => self.n_inputs,
-            _ => self.layers[self.layers.len() - 1].len(),
+        if self.layers.is_empty() {
+            return I;
         }
+        self.layers[self.layers.len() - 1].len()
     }
 
     /// Adds custom weights to the last layer of the model
@@ -118,16 +121,20 @@ impl NeuralNetwork {
         self
     }
 
-    /// runs the model on the given input, fails if the input had incorrect size
-    pub fn run(&self, input: &Vec<f32>) -> Vec<f32>{
+    /// runs the model on the given input.
+    pub fn run(&self, input: &[f32; I]) -> [f32; O] {
         let mut data = Vec::with_capacity(self.longest_layer);
-        unsafe { data.set_len(input.len())}
-        for i in 0..input.len() {
-            data[i] = input[i];
-        }
+
+        // we only read values we initialise in this loop, so this is 100% safe
+        #[allow(clippy::uninit_vec)]
+        unsafe { data.set_len(input.len()) }
+
+        data[..input.len()].copy_from_slice(&input[..]);
 
         let mut temp = Vec::with_capacity(self.longest_layer);
         for layer in &self.layers {
+            // we only read values we initialise in this loop, so this is 100% safe
+            #[allow(clippy::uninit_vec)]
             unsafe { temp.set_len(layer.len()) }
 
             for (i, neuron) in layer.iter().enumerate() {
@@ -137,11 +144,13 @@ impl NeuralNetwork {
             (data, temp) = (temp, data);
         }
 
-        data
+        let mut out = [0.0; O];
+        out[..O].copy_from_slice(&data[..O]);
+        out
     }
 
     /// runs the model on a large set of data. Uses rayon for faster computation
-    pub fn par_run(&self, inputs: &Vec<Vec<f32>>) -> Vec<Vec<f32>> {
+    pub fn par_run(&self, inputs: &Vec<[f32; I]>) -> Vec<[f32; O]> {
         inputs.par_iter().map(|input| self.run(input)).collect()
     }
 }
@@ -160,15 +169,15 @@ mod test {
 
     #[test]
     fn minimal_test() {
-        let net = NeuralNetwork::new(1)
+        let net = NeuralNetwork::new()
             .add_layer(10, ActivationFunction::ReLU)
             .add_layer(5, ActivationFunction::Linear);
-        assert_eq!(net.run(&vec![1.0]), vec![10.0; 5])
+        assert_eq!(net.run(&[1.0]), [10.0; 5])
     }
 
     #[test]
     fn better_test() {
-        let net = NeuralNetwork::new(2)
+        let net: NeuralNetwork<2, 1> = NeuralNetwork::new()
             .add_layer(4, ActivationFunction::ReLU)
             .with_weights(vec![
                 vec![1.1, -0.93],
@@ -180,9 +189,9 @@ mod test {
             .add_layer(1, ActivationFunction::Linear)
             .with_weights(vec![vec![-1.4, 1.3, 1.4, -1.3]]);
 
-        assert_eq!(net.run(&vec![3.0, 3.0])[0] > 0.0, true);
-        assert_eq!(net.run(&vec![-3.0, -3.0])[0] > 0.0, true);
-        assert_eq!(net.run(&vec![3.0, -3.0])[0] < 0.0, true);
-        assert_eq!(net.run(&vec![-3.0, 3.0])[0] < 0.0, true);
+        assert!(net.run(&[3.0, 3.0])[0] > 0.0);
+        assert!(net.run(&[-3.0, -3.0])[0] > 0.0);
+        assert!(net.run(&[3.0, -3.0])[0] < 0.0);
+        assert!(net.run(&[-3.0, 3.0])[0] < 0.0);
     }
 }

@@ -2,7 +2,7 @@ use tiny_ml::prelude::*;
 
 fn main() {
     // this network is completley overkill, but it does the job
-    let mut net = NeuralNetwork::new(2)
+    let mut net: NeuralNetwork<2, 1> = NeuralNetwork::new()
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
@@ -16,7 +16,7 @@ fn main() {
     let mut output = vec![];
     for x in 0..=100 {
         for y in 0..=100 {
-            inputs.push(vec![x as f32, y as f32]);
+            inputs.push([x as f32, y as f32]);
             // we want this to be a classifier, so we ask it for a result greater zero or smaller zero
             output.push(if (x as f32).abs() + (y as f32).abs() < 30.0 {
                 Expectation::SmallerZero
@@ -27,7 +27,7 @@ fn main() {
     }
 
     let data = DataSet {
-        inputs: inputs,
+        inputs,
         outputs: output,
     };
 

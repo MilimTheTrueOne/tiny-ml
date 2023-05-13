@@ -9,12 +9,14 @@ repository = "https://github.com/MilimTheTrueOne/tiny-ml"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
-default = ["parallization"]
+default = ["parallization", "serialization"]
 parallization = ["rayon"]
+serialization = ["serde"]
 
 [dependencies]
 rayon = {version="1.7.0", optional=true}
 rand = "0.8.5"
+serde = { version = "1.0.163", optional = true, features=["derive"] }
 
 [profile.dev]
 opt-level=3

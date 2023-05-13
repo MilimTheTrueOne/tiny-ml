@@ -3,16 +3,22 @@ use rand::Rng;
 
 #[cfg(feature = "parallization")]
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
+#[cfg(feature = "serialization")]
+use serde::{Serialize, Deserialize};
 
 mod neuron;
 
 /// A simple Neural Network
+#[cfg(feature = "serialization")]
+#[derive(Serialize, Deserialize)]
 pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
+    #[serde(skip)]
     last_edit: Option<Edit>,
     /// this exist for preallocation
     longest_layer: usize,
     /// preallocated buffers
+    #[serde(skip)]
     buffers: (Vec<f32>, Vec<f32>),
 }
 
@@ -214,6 +220,8 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
 }
 
 /// The activation function neurons are to use
+#[cfg(feature = "serialization")]
+#[derive(Serialize, Deserialize)]
 #[derive(Debug, Default, Clone, Copy)]
 pub enum ActivationFunction {
     #[default]

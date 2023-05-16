@@ -9,16 +9,15 @@ use serde::{Serialize, Deserialize};
 mod neuron;
 
 /// A simple Neural Network
-#[cfg(feature = "serialization")]
-#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "serialization", Serialize, Deserialize)]
 pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
-    #[serde(skip)]
+    #[cfg_attr(feature = "serialization", serde(skip))]
     last_edit: Option<Edit>,
     /// this exist for pre allocation
     longest_layer: usize,
     /// pre allocated buffers
-    #[serde(skip)]
+    #[cfg_attr(feature = "serialization", serde(skip))]
     buffers: (Vec<f32>, Vec<f32>),
 }
 
@@ -220,8 +219,8 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
 }
 
 /// The activation function neurons are to use
-#[cfg(feature = "serialization")]
-#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "serialzation", Serialize, Deserialize)]
+
 #[derive(Debug, Default, Clone, Copy)]
 pub enum ActivationFunction {
     #[default]

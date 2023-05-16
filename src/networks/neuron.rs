@@ -3,8 +3,8 @@ use rand::random;
 use super::*;
 
 /// Struct representing one Neuron
-#[cfg(feature = "serialization")]
-#[derive(Serialize, Deserialize)]
+
+#[cfg_attr(feature = "serialization", Serialize, Deserialize)]
 #[derive(Default, Debug, Clone)]
 pub struct Neuron {
     weights: Vec<f32>,

@@ -6,19 +6,19 @@ A simple, fast rust crate for simple basic neural networks.
 ### What is this for?
 - Learning about ML 
 - Evolution simulations
-- Whaterver else you want to use this for
+- Whatever else you want to use this for
 
 #### what is this **not**?
-- A large scale ML libary like Tensorflow or PyTorch. This is simple and basic, or just 'tiny'.
+- A large scale ML library like Tensorflow or PyTorch. This is simple and basic, or just 'tiny'.
 
 ## How to use this?
 As an example, here is how to make a model that can tell if a point is in a circle or not!
 ```rust
 use tiny_ml::prelude::*;
 
-// how many input datapoints the model has
+// how many input data-points the model has
 const NET_INPUTS: usize = 2;
-// how many datampoints the model outputs
+// how many data-points the model outputs
 const NET_OUTPUTS: usize = 1;
 // radius of the circle
 const RADIUS: f32 = 30.0;
@@ -44,9 +44,9 @@ fn main() {
             // and +1 for in the circle 
             outputs.push(
                 if (x as f32).abs() + (y as f32).abs() < RADIUS{
-                    Expectation { expected: [1.0]}
+                    [1.0
                 } else {
-                    Expectation { expected: [-1.0]}
+                    [-1.0]
                 }
             )
         }
@@ -74,6 +74,7 @@ Here some benchmarks on an AMD Ryzen 5 2600X (12) @ 3.6 GHz with the 'bench' exa
 Build with `--release`-flag enabled.
 Benchmark is 10 Million runs on this network, and then sum the results: 
 ```rust
+fn main() {
     let mut net: NeuralNetwork<1, 1> = NeuralNetwork::new()
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
@@ -82,9 +83,10 @@ Benchmark is 10 Million runs on this network, and then sum the results:
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(5, ActivationFunction::ReLU)
         .add_layer(1, ActivationFunction::Linear);
+}
 ```
-| method | time     | Description                |
-| :-------- | :------- | :------------------------- |
-| `run` | 1.045s | Single threaded, but buffers some vecs |
-| `unbufferd_run` | 1.251s | Can be ran in multiple threads at the same time, however has to allocate more often |
-| `par_run` | 240ms | Takes a multiple inputs at once. Parallelizes computation with `rayon`, uses `unbufferd_run` under the hood |
+| method           | time   | Description                                                                                                |
+|:-----------------|:-------|:-----------------------------------------------------------------------------------------------------------|
+| `run`            | 1.045s | Single threaded, but buffers some Vecs                                                                     |
+| `unbuffered_run` | 1.251s | Can be ran in multiple threads at the same time, however has to allocate more often                        |
+| `par_run`        | 240ms  | Takes a multiple inputs at once. Parallizes computation with `rayon`, uses `unbuffered_run` under the hood |

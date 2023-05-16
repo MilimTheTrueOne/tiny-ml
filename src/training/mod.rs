@@ -1,6 +1,6 @@
 use std::usize;
 
-#[cfg(feature = "parallization")]
+#[cfg(feature = "parallelization")]
 use rayon::prelude::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::networks::NeuralNetwork;
@@ -37,20 +37,19 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
     }
 
     fn compute_total_error(&self, net: &NeuralNetwork<N, O>, data: &DataSet<N, O>) -> f32 {
-        #[cfg(feature = "parallization")]
+        #[cfg(feature = "parallelization")]
         let it = { data.inputs.par_iter() };
 
-        #[cfg(not(feature = "parallization"))]
+        #[cfg(not(feature = "parallelization"))]
         let it = { data.inputs.iter() };
 
         it.zip(&data.outputs)
             .map(|(input, output)| {
-                let result = net.unbufferd_run(input);
-                output.expected    
-                        .iter()
-                        .zip(result)
-                        .fold(0.0, |dist, x| dist + (x.0 - x.1).abs())
-                
+                let result = net.unbuffered_run(input);
+                output
+                    .iter()
+                    .zip(result)
+                    .fold(0.0, |dist, x| dist + (x.0 - x.1).abs())
             })
             .sum()
     }
@@ -60,9 +59,5 @@ impl<const N: usize, const O: usize> BasicTrainer<N, O> {
 #[derive(Default)]
 pub struct DataSet<const N: usize, const O: usize> {
     pub inputs: Vec<[f32; N]>,
-    pub outputs: Vec<Expectation<O>>,
-}
-
-pub struct  Expectation<const O: usize> {
-    pub expected: [f32; O],
+    pub outputs: Vec<[f32; O]>,
 }

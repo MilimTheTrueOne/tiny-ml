@@ -1,11 +1,11 @@
 use tiny_ml::prelude::*;
 
 fn main() {
-    // this network is completley overkill, but it does the job
+    // this network is completely overkill, but it does the job
     let mut net: NeuralNetwork<2, 1> = NeuralNetwork::new()
         .add_layer(3, ActivationFunction::ReLU)
         .add_layer(3, ActivationFunction::ReLU)
-        // this layer reduced everthing to one input!
+        // this layer reduced everything to one input!
         .add_layer(1, ActivationFunction::Linear);
 
     let mut inputs = vec![];
@@ -15,9 +15,9 @@ fn main() {
             inputs.push([x as f32, y as f32]);
             // we want this to be a classifier, so we ask it for a result greater zero or smaller zero
             output.push(if (x as f32).abs() + (y as f32).abs() < 30.0 {
-                Expectation { expected: [1.0] }
+                [1.0]
             } else {
-                Expectation { expected: [-1.0] }
+                [-1.0]
             })
         }
     }

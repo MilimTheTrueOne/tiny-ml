@@ -9,7 +9,7 @@ use super::*;
 pub struct Neuron {
     weights: Vec<f32>,
     bias: f32,
-    activiation: ActivationFunction,
+    activation: ActivationFunction,
 }
 
 impl Neuron {
@@ -17,7 +17,7 @@ impl Neuron {
         Self {
             weights: vec![1.0; n_inputs],
             bias,
-            activiation: func,
+            activation: func,
         }
     }
 
@@ -29,7 +29,7 @@ impl Neuron {
         Self {
             weights,
             bias: random(),
-            activiation: func,
+            activation: func,
         }
     }
 
@@ -61,7 +61,7 @@ impl Neuron {
             res += self.weights[i] * x[i];
             i += 1;
         }
-        match self.activiation {
+        match self.activation {
             ActivationFunction::Linear => res,
             ActivationFunction::ReLU => res.max(0.0),
         }

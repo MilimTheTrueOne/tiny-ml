@@ -1,7 +1,7 @@
 use self::neuron::Neuron;
 use rand::Rng;
 
-#[cfg(feature = "parallization")]
+#[cfg(feature = "parallelization")]
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 #[cfg(feature = "serialization")]
 use serde::{Serialize, Deserialize};
@@ -15,9 +15,9 @@ pub struct NeuralNetwork<const I: usize, const O: usize> {
     layers: Vec<Vec<Neuron>>,
     #[serde(skip)]
     last_edit: Option<Edit>,
-    /// this exist for preallocation
+    /// this exist for pre allocation
     longest_layer: usize,
-    /// preallocated buffers
+    /// pre allocated buffers
     #[serde(skip)]
     buffers: (Vec<f32>, Vec<f32>),
 }
@@ -53,7 +53,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         self
     }
 
-    /// checks whenever the newly added layer is longer then previus longest layer
+    /// checks whenever the newly added layer is longer then previous longest layer
     fn check_max_layer(&mut self, n: usize) {
         if n > self.longest_layer {
             self.longest_layer = n;
@@ -108,7 +108,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         }
     }
 
-    /// get the inputs lenght of the last layer
+    /// get the inputs length of the last layer
     fn get_layer_inputs(&self) -> usize {
         if self.layers.is_empty() {
             return I;
@@ -129,13 +129,13 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     }
 
     /// adds custom biases to the last layer of the model
-    pub fn with_bias(mut self, baises: Vec<f32>) -> Self {
+    pub fn with_bias(mut self, biases: Vec<f32>) -> Self {
         match self.layers.last_mut() {
             None => panic!("tried to add biases before layers!"),
             Some(layer) => layer
                 .iter_mut()
-                .zip(baises)
-                .for_each(|(neuron, bais)| neuron.set_bias(bais)),
+                .zip(biases)
+                .for_each(|(neuron, bias)| neuron.set_bias(bias)),
         }
         self
     }
@@ -178,7 +178,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     /// runs the model on the given input. This does not buffer some things, and thus is slower
     /// as ist does extra allocations work.
     #[inline]
-    pub fn unbufferd_run(&self, input: &[f32; I]) -> [f32; O] {
+    pub fn unbuffered_run(&self, input: &[f32; I]) -> [f32; O] {
         let mut data = Vec::with_capacity(self.longest_layer);
 
         // we only read values we initialise in this loop, so this is 100% safe
@@ -210,11 +210,11 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     }
 
     /// runs the model on a large set of data. Uses rayon for faster computation
-    #[cfg(feature = "parallization")]
+    #[cfg(feature = "parallelization")]
     pub fn par_run(&self, inputs: &Vec<[f32; I]>) -> Vec<[f32; O]> {
         inputs
             .par_iter()
-            .map(|input| self.unbufferd_run(input))
+            .map(|input| self.unbuffered_run(input))
             .collect()
     }
 }

@@ -69,6 +69,9 @@ fn main() {
 }
 ```
 
+## Features
+`serialization` enables Serde support.
+`parallelization` enables rayon, default feature.  
 ## Speed?
 Here some benchmarks on an AMD Ryzen 5 2600X (12) @ 3.6 GHz with the 'bench' example.
 Build with `--release`-flag enabled.

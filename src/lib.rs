@@ -1,3 +1,5 @@
+#![feature(portable_simd)]
+
 mod networks;
 mod training;
 

@@ -56,7 +56,7 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     fn check_max_layer(&mut self, n: usize) {
         if n > self.longest_layer {
             self.longest_layer = n;
-            self.buffers = (Vec::with_capacity(n), Vec::with_capacity(n))
+            self.buffers = (vec![0.0;n], vec![0.0;n])
         }
     }
 
@@ -146,22 +146,10 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
         let mut data = &mut self.buffers.0;
         let mut temp = &mut self.buffers.1;
 
-        // we only read values we initialise in this loop, so this is 100% safe
-        #[allow(clippy::uninit_vec)]
-        unsafe {
-            data.set_len(input.len())
-        }
-
         // put input data in temp vec
         data[..input.len()].copy_from_slice(&input[..]);
 
         for layer in &self.layers {
-            // we only read values we initialise in this loop, so this is 100% safe
-            #[allow(clippy::uninit_vec)]
-            unsafe {
-                temp.set_len(layer.len())
-            }
-
             for (i, neuron) in layer.iter().enumerate() {
                 temp[i] = neuron.compute(data);
             }
@@ -178,24 +166,12 @@ impl<const I: usize, const O: usize> NeuralNetwork<I, O> {
     /// as ist does extra allocations work.
     #[inline]
     pub fn unbuffered_run(&self, input: &[f32; I]) -> [f32; O] {
-        let mut data = Vec::with_capacity(self.longest_layer);
-
-        // we only read values we initialise in this loop, so this is 100% safe
-        #[allow(clippy::uninit_vec)]
-        unsafe {
-            data.set_len(input.len())
-        }
+        let mut data = vec![0.0;self.longest_layer];
 
         data[..input.len()].copy_from_slice(&input[..]);
 
-        let mut temp = Vec::with_capacity(self.longest_layer);
+        let mut temp = vec![0.0;self.longest_layer];
         for layer in &self.layers {
-            // we only read values we initialise in this loop, so this is 100% safe
-            #[allow(clippy::uninit_vec)]
-            unsafe {
-                temp.set_len(layer.len())
-            }
-
             for (i, neuron) in layer.iter().enumerate() {
                 temp[i] = neuron.compute(&data);
             }

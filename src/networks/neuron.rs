@@ -1,4 +1,4 @@
-use std::simd::{f32x16, SimdFloat, f32x8, f32x4, f32x2};
+use std::simd::{f32x16, f32x2, f32x4, f32x8, SimdFloat};
 
 use rand::random;
 
@@ -68,38 +68,36 @@ impl Neuron {
         let mut i = 0;
         let mut res = self.bias;
         while remaining_length >= 16 {
-            let simd_weights = f32x16::from_slice(&self.weights[i..i+16]);
-            let simd_input = f32x16::from_slice(&x[i..i+16]);
+            let simd_weights = f32x16::from_slice(&self.weights[i..i + 16]);
+            let simd_input = f32x16::from_slice(&x[i..i + 16]);
             res += (simd_input * simd_weights).reduce_sum();
-            i+=16;
-            remaining_length-=16;
+            i += 16;
+            remaining_length -= 16;
         }
         while remaining_length >= 8 {
-            let simd_weights = f32x8::from_slice(&self.weights[i..i+8]);
-            let simd_input = f32x8::from_slice(&x[i..i+8]);
+            let simd_weights = f32x8::from_slice(&self.weights[i..i + 8]);
+            let simd_input = f32x8::from_slice(&x[i..i + 8]);
             res += (simd_input * simd_weights).reduce_sum();
-            i+=8;
-            remaining_length-=8;
+            i += 8;
+            remaining_length -= 8;
         }
         while remaining_length >= 4 {
-
-            let simd_weights = f32x4::from_slice(&self.weights[i..i+4]);
-            let simd_input = f32x4::from_slice(&x[i..i+4]);
+            let simd_weights = f32x4::from_slice(&self.weights[i..i + 4]);
+            let simd_input = f32x4::from_slice(&x[i..i + 4]);
 
             res += (simd_input * simd_weights).reduce_sum();
-            i+=4;
-            remaining_length-=4;
+            i += 4;
+            remaining_length -= 4;
         }
         while remaining_length >= 2 {
-            let simd_weights = f32x2::from_slice(&self.weights[i..i+2]);
-            let simd_input = f32x2::from_slice(&x[i..i+2]);
+            let simd_weights = f32x2::from_slice(&self.weights[i..i + 2]);
+            let simd_input = f32x2::from_slice(&x[i..i + 2]);
             res += (simd_input * simd_weights).reduce_sum();
-            i+=16;
-            remaining_length-=16;
+            i += 16;
+            remaining_length -= 16;
         }
         if remaining_length == 1 {
             res += x[i] * self.weights[i];
-
         }
         match self.activation {
             ActivationFunction::Linear => res,
